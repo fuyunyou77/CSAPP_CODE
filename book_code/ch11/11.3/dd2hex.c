@@ -1,4 +1,4 @@
-#include </home/fu/csapp_code/book_code/csapp.h>
+#include "csapp.h"
 
 void unix_error(char *msg)
 {
