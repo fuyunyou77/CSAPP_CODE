@@ -1,6 +1,12 @@
 #include "csapp.h"
 
 void doit(int fd);
+void read_requesthdrs(rio_t *rp);
+int parse_uri(char *uri,char filename,char *cgiargs);
+void server_static(int fd,char *filename,int fileszie);
+void get_filetype(char *filename,char *filetype);
+void server_dynamic(int fd ,char *filename,char *cgiargs);
+void clienterror(int fd,char *cause,char *errnum,char *shortmsg,char *longmsg);
 
 int main(int argc,char **argv)
 {
@@ -68,11 +74,21 @@ void doit(int fd)
     /*Serve static content*/
     if(is_static)
     {
-
+        if(!(S_ISREG(sbuf.st_mode)) || !(S_IRUSR & sbuf.st_mode))
+        {
+            clineterror(fd,filename,"403","Forbidden","Tiny couldn't read the file");
+            return;
+        }
+        server_static(fd,filename,sbuf.st_size);
     }
     else/*Serve dynamic content*/
     {
-
+        if(!(S_ISREG(sbuf.st_mode)) || !(S_IXUSR & sbuf.st_mode))
+        {
+            clineterror(fd,filename,"403","Forbidden","Tiny couldn't run the CGI program");
+            return;
+        }
+        server_dynamic(fd,filename,sbuf.st_size);
     }
 
 }
